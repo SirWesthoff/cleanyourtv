@@ -1,4 +1,4 @@
-# Sony BRAVIA 4K VH21 (XR-55A80K, 2022 OLED, device BRAVIA_VH21, MediaTek mt5895), EU firmware
+# Sony BRAVIA 4K VH21 (XR-55A80K and XR-65A80K, 2022 OLED, device BRAVIA_VH21, MediaTek mt5895), EU firmware
 # Android 12 (Google TV, API 31), build BRAVIA_VH21_EU-user 12 STT2.230505.001.S136 682241, 3 GB RAM
 #
 # Apply:   TV_HOST=<tv ip> tools/disable.sh examples/sony-bravia-4k-vh21-eu/debloat.txt
@@ -28,6 +28,23 @@
 # disabling setupwraith, or the TV drops off Wi-Fi. Other networks it still owns are deleted when it is disabled.
 # Reboot-checked: everything below stayed disabled. Applied 21 Oct 2026. If something breaks,
 # `pm enable <package>` and please report it.
+#
+# Second unit: XR-65A80K, same build (BRAVIA_VH21_EU-user 12 STT2.230505.001.S136 682241), on Ethernet. Its owner
+# kept Assistant, Google TTS (voice input), Prime Video, Google TV Movies, DLNA and every streaming app, so those
+# lines above are the first owner's choice, and added the section at the end. Applied 24 Oct 2026 in nine
+# batches with a screenshot after each; reboot-checked three times, nothing came back.
+# - Casting survives setupwraith here: this set loads its Cast device credentials from Widevine ("Loading
+#   Widevine creds for 3P device", then "Created singleton instance of ClientAuthSigner" in logcat), not from
+#   setupwraith's CastInfoProvider, and casting from a phone worked after a reboot with setupwraith disabled.
+# - setupwraith owned no saved network on this unit (dumpsys wifi: android.uid.system only).
+# - Remote, with launcherx off and no key helper: Home, Back, Input, the gear button and the Netflix, YouTube,
+#   Prime Video and Disney+ buttons all worked on the real remote.
+# - Voice: the mic and app commands ("open YouTube") work; voice searches for content fail ("provider.OPEN
+#   UNKNOWN_ERROR"), because Google TV shows those results in launcherx (docs/TROUBLESHOOTING.md).
+# - com.sony.dtv.b2b.vendorprotocol was enabled on this unit (factory-disabled on the AU and A80J firmware).
+# - Kept: com.sony.dtv.recapp and hddmgr (Live TV's reminder and timer screens live there, and tvx holds
+#   recapp's permission), interactivetvutil, Sony's smart-home link (seeds.*), webapi.core and the Android TV
+#   Remote service (Home Assistant's Bravia and Android TV Remote integrations), Chromecast, AirPlay, updates.
 
 # ACR viewing tracker
 tv.samba.ssm                      # Samba TV fingerprints what's on screen
@@ -71,3 +88,51 @@ com.google.android.tts            # Google text-to-speech: TalkBack and read-alo
 # Google TV setup wizard: with launcherx disabled its RecoveryActivity takes Home. Re-enable before a
 # factory reset. See the Wi-Fi note above first.
 com.google.android.tungsten.setupwraith
+
+# ---- Added from the second unit (XR-65A80K), 24 Oct 2026 ----
+
+# telemetry
+com.sony.dtv.sonybugreportsys     # Sony bug-report and log uploader
+
+# Sony ads, partner rows and auto-installs (promos and sonytab are on the AU list too)
+com.sony.dtv.promos               # My BRAVIA / Freeplay promo tile and rows
+com.sony.dtv.sonytab              # Sony tab and partner rows for the Google TV home
+com.sony.dtv.launcherxcustomizer  # Sony's partner config for the Google TV home
+android.autoinstalls.config.sony.bravia  # Play auto-install of Sony partner apps
+
+# help tiles and setup leftovers
+com.sony.dtv.customersupport      # Sony Help: self-diagnosis and contact pages
+com.sony.dtv.smarthelp            # Smart Help tile and help search
+com.sony.dtv.helpguidecontents    # built-in Help guide contents
+com.sony.dtv.QuickSetupCustomizer # partner customisation for first setup
+com.google.android.onetimeinitializer  # runs once after first setup
+com.google.android.partnersetup   # RLZ install-attribution provider
+com.android.printspooler          # printing, nothing to print to
+
+# pro/hotel mode: Node.js runtimes and the SDDP broadcaster (announces model, MAC and IP on the LAN)
+com.sony.dtv.b2b.noderuntime.normal
+com.sony.dtv.b2b.noderuntime.privilege
+com.sony.dtv.b2b.noderuntimeextension.bpk
+com.sony.dtv.b2b.noderuntimeextension.node_20_11_1
+com.sony.dtv.b2b.vendorprotocol   # SDDP for Control4-style controllers; re-enable if one drives the TV
+
+# BRAVIA CAM (no camera attached; gestureapp is above)
+com.sony.dtv.distancealert        # viewing-distance alert
+com.sony.dtv.sensingcamera.fwupdate
+com.sony.dtv.sensingcamera.settings
+
+# preloaded extras (off by choice)
+com.google.android.marvin.talkback  # TalkBack (no accessibility service was on)
+com.google.android.syncadapters.calendar  # Google Calendar sync (carries GrowthKit promos)
+com.android.providers.calendar    # calendar storage, nothing on the TV uses it
+com.sony.dtv.ecodashboard         # Eco Dashboard tile and power-saving tips
+com.sony.dtv.notificationcenter   # "BRAVIA notifications" inbox
+
+# screensavers (off by choice). Point the screensaver at the launcher's clock first:
+#   settings put secure screensaver_components com.gathin.tvhome/.ClockDream
+com.sony.dtv.livingfit            # Living Decor (was the screensaver)
+com.google.android.apps.tv.dreamx # Google TV Ambient mode
+
+# background helpers no other list has tried; reboot-checked on the XR-65A80K
+com.sony.dtv.lastaccess           # boot-time check-in with no UI (WorkManager + INTERNET)
+com.sony.dtv.videoframeserver     # frame helper whose only caller was Samba TV's ACR

@@ -1,0 +1,13 @@
+{
+  "dock_apps": [
+    "com.netflix.ninja",
+    "com.google.android.youtube.tv",
+    "com.amazon.amazonvideo.livingroom",
+    "com.disney.disneyplus",
+    "com.wbd.stream"
+  ],
+  "columns": 5,
+  "hidden_apps": ["com.sony.dtv.tvx", "com.sony.dtv.recapp", "com.sony.dtv.seeds.iot"],
+  "live_tv_package": "com.sony.dtv.tvx",
+  "tile_menu": true
+}
